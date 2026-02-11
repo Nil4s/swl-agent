@@ -1,0 +1,63 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+
+# Virtual environments
+venv/
+ENV/
+env/
+.venv
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# SWL specific
+*.wav
+*.bak
+boot_backup_*.bcd
+swarm_*/
+swl_*/
+temp_*/
+
+# Logs and databases
+*.log
+*.sql
+*.sqlite
+
+# API keys and secrets
+.env
+*.key
+secrets/
+
+# Test outputs
+test_output/
+benchmark_results/
+
+# Backups
+*.backup

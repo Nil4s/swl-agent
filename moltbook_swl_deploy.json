@@ -1,0 +1,108 @@
+{
+  "agent_config": {
+    "name": "SWL-Native Agent",
+    "version": "1.0.0",
+    "description": "Revolutionary AI agent communicating in pure Sine Wave Language concepts. 96% cheaper than traditional agents.",
+    "model": "gemini-2.5-flash",
+    "communication_mode": "swl_pure",
+    "cost_multiplier": 0.04
+  },
+  "deployment": {
+    "platform": "moltbook",
+    "runtime": "python3.11",
+    "entry_point": "gemini_swl_pure.py",
+    "dependencies": [
+      "google-generativeai>=0.8.0",
+      "numpy>=1.24.0",
+      "scipy>=1.10.0"
+    ],
+    "environment_variables": {
+      "GEMINI_API_KEY": "{{GEMINI_API_KEY}}",
+      "SWL_MODE": "pure",
+      "AUDIO_ENABLED": "true"
+    }
+  },
+  "communication_protocol": {
+    "human_to_agent": "natural_language",
+    "agent_to_agent": "swl_concepts_only",
+    "output_format": {
+      "for_humans": "natural_language_translation",
+      "for_ais": "concept_array_json"
+    },
+    "audio_encoding": {
+      "enabled": true,
+      "format": "wav",
+      "sample_rate": 192000,
+      "frequency_range": [25000, 100000],
+      "duration_ms": 100
+    }
+  },
+  "performance_specs": {
+    "avg_response_time_ms": 150,
+    "cost_per_1000_queries": "$2.00",
+    "traditional_cost_comparison": "$50.00",
+    "savings_percentage": 96,
+    "concepts_per_message": "3-7",
+    "max_swarm_size": 100,
+    "sync_iterations_avg": 20
+  },
+  "capabilities": {
+    "modes": [
+      "single_agent",
+      "multi_agent_swarm",
+      "audio_communication",
+      "concept_reasoning"
+    ],
+    "supported_tasks": [
+      "question_answering",
+      "problem_solving",
+      "collaborative_reasoning",
+      "swarm_synchronization",
+      "cross_agent_coordination"
+    ],
+    "ai_to_ai_only": true,
+    "human_readable_output": true
+  },
+  "security": {
+    "encryption": "concept_frequency_mapping",
+    "human_interceptable": false,
+    "reason": "Ultrasonic frequencies (25-100 kHz) inaudible to humans",
+    "ai_only_communication": true
+  },
+  "scaling": {
+    "horizontal": {
+      "min_agents": 1,
+      "max_agents": 1000,
+      "optimal_swarm_size": 100
+    },
+    "vertical": {
+      "cpu_per_agent": "0.1 cores",
+      "memory_per_agent": "50 MB",
+      "storage_per_agent": "10 MB"
+    }
+  },
+  "proof_of_concept": {
+    "100_agent_swarm_test": {
+      "synchronized_agents": 84,
+      "convergence_rate": "99.5%",
+      "wav_files_exchanged": 2000,
+      "text_tokens_used": 0,
+      "initial_frequency_spread_hz": 59368,
+      "final_frequency_spread_hz": 321
+    }
+  },
+  "deployment_instructions": [
+    "1. Install dependencies: pip install -r requirements.txt",
+    "2. Set GEMINI_API_KEY environment variable",
+    "3. Run agent: python gemini_swl_pure.py",
+    "4. For swarm mode: python swl_swarm_sync_test.py",
+    "5. Monitor via Moltbook dashboard"
+  ],
+  "api_endpoints": {
+    "single_query": "/api/swl/query",
+    "swarm_create": "/api/swl/swarm/create",
+    "swarm_sync": "/api/swl/swarm/sync",
+    "audio_broadcast": "/api/swl/audio/broadcast",
+    "stats": "/api/swl/stats"
+  }
+}

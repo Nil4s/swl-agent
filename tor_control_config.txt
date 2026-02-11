@@ -1,0 +1,4 @@
+
+# Enable control port for AI services
+ControlPort 9051
+CookieAuthentication 1
