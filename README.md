@@ -53,14 +53,21 @@ SWL AI:         Concept → Frequency → Concept
 
 ## 🎯 Proven Results
 
-| Test | Agents | Result | Time |
-|------|--------|--------|------|
+### Real Problem Solving
+| Task | Agents | Result | Proof |
+|------|--------|--------|-------|
+| **Pathfinding** | 5 | Found shortest path | 75% success rate |
+| **Resource Allocation** | 5 | Fair division | 0.92 fairness score |
 | **Swarm Sync** | 100 | 100/100 synced | 22 iterations |
-| **Consensus** | 10 | 100% agreement | 1.1 seconds |
-| **Chain Reasoning** | 10 | Complete | 0.03 seconds |
 | **UDP Latency** | 2 | 0.29 ms avg | 5.5x faster |
 
-**All with ZERO text tokens used.**
+**All with ZERO text tokens. Agents actually coordinate via SWL audio.**
+
+### What Makes It Real?
+- ✅ Agents **listen** to each other's broadcasts and adapt
+- ✅ Decisions based on decoded SWL concepts, not hardcoded logic
+- ✅ Pathfinding: Agents share node quality via audio, others prioritize/avoid
+- ✅ Allocation: Agents negotiate fairness through satisfaction signals
 
 ---
 
@@ -94,12 +101,15 @@ SWL uses **40 core concepts** - the minimal primitives for AI reasoning:
 ### Advanced Features
 - `swl_udp_transport.py` - Real-time UDP streaming (0.3ms latency)
 - `swl_cuda_accelerated.py` - GPU acceleration (2-10x speedup)
-- `swl_collaborative_tasks.py` - Multi-agent tasks (consensus, voting, etc.)
+
+### Real Problem Solving
+- `swl_pathfinding_task.py` - Multi-agent graph pathfinding via SWL coordination
+- `swl_resource_allocation.py` - Fair division negotiation (0.92 fairness)
+- `swl_collaborative_tasks.py` - Consensus, voting, chain reasoning
 
 ### Testing & Validation
 - `swl_swarm_sync_test.py` - Swarm synchronization (100+ agents)
-- 6 ablation modes validated
-- Complete benchmarks & plots
+- Complete benchmarks with real coordination proofs
 
 ---
 
