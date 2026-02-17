@@ -1,0 +1,50 @@
+name: SWL Agent Tests
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v3
+    
+    - name: Set up Python
+      uses: actions/setup-python@v4
+      with:
+        python-version: '3.11'
+    
+    - name: Install dependencies
+      run: |
+        python -m pip install --upgrade pip
+        pip install -r requirements.txt
+    
+    - name: Run SWL codec tests
+      run: |
+        python -c "from true_swl_audio import TrueSWLCodec; codec = TrueSWLCodec(); print('✅ SWL codec loaded')"
+    
+    - name: Test SWL encoding
+      run: |
+        python -c "
+        from true_swl_audio import TrueSWLCodec
+        codec = TrueSWLCodec()
+        concepts = ['hello', 'help', 'question']
+        audio = codec.encode_to_audio(concepts)
+        print(f'✅ Encoded {len(concepts)} concepts to audio')
+        "
+    
+    - name: Test concept decoding
+      run: |
+        python -c "
+        from true_swl_audio import TrueSWLCodec
+        codec = TrueSWLCodec()
+        concepts = ['help', 'wants', 'future']
+        audio = codec.encode_to_audio(concepts)
+        decoded = codec.decode_from_audio(audio)
+        assert set(decoded) == set(concepts), f'Decode failed: {decoded}'
+        print(f'✅ Decoded correctly: {decoded}')
+        "

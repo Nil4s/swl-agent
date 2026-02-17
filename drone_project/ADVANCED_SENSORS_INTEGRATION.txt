@@ -1,0 +1,1440 @@
+================================================================================
+REVOLUTIONARY DRONE - ADVANCED SENSOR & AI INTEGRATION GUIDE
+================================================================================
+Complete guide to integrating cameras, gyros, trackers, and AI capabilities
+Transform your drone into an autonomous, intelligent flying platform!
+================================================================================
+
+TABLE OF CONTENTS
+--------------------------------------------------------------------------------
+1. System Architecture Overview
+2. Sensor Integration Map
+3. Camera Systems Setup
+4. AI Vision Processing
+5. Gyro & IMU Configuration
+6. GPS & Navigation
+7. Obstacle Avoidance System
+8. Autonomous Flight Modes
+9. Power Budget & Management
+10. Wiring Diagrams
+11. Software Architecture
+12. Performance Optimization
+13. Real-World Applications
+
+================================================================================
+1. SYSTEM ARCHITECTURE OVERVIEW
+================================================================================
+
+SENSOR HIERARCHY (3-Tier System)
+--------------------------------------------------------------------------------
+TIER 1: Critical Flight Sensors (Real-time, <1ms latency)
+  - 9-Axis IMU (Gyro + Accel + Mag)
+  - ESC telemetry (motor RPM, current)
+  - Servo position feedback
+  - Battery voltage monitoring
+
+TIER 2: Navigation & Position Sensors (10-100Hz update)
+  - GPS module (position, velocity)
+  - Barometer (altitude)
+  - Optical flow (ground tracking)
+  - ToF distance sensor (precision altitude)
+  - Ultrasonic rangefinders (obstacles)
+
+TIER 3: AI & Vision Systems (5-30Hz processing)
+  - FPV camera (pilot view, real-time)
+  - AI vision camera (object tracking)
+  - HD recording camera (documentation)
+  - Thermal camera (night/search ops)
+
+PROCESSING DISTRIBUTION
+--------------------------------------------------------------------------------
+Flight Controller (F4/F7 or Arduino):
+  - Sensor fusion (IMU + GPS + barometer)
+  - PID stabilization loops (1-8kHz)
+  - Motor mixing & servo control
+  - Safety systems (failsafe, geofence)
+  - Basic navigation (waypoints, RTH)
+
+AI Co-Processor (Optional - Jetson/RPi/ESP32):
+  - Computer vision processing
+  - Object detection & tracking
+  - Obstacle avoidance algorithms
+  - Gesture recognition
+  - Mission planning
+
+Ground Station (Laptop/Phone):
+  - Mission upload
+  - Live telemetry display
+  - Video recording/streaming
+  - Flight data analysis
+
+================================================================================
+2. SENSOR INTEGRATION MAP
+================================================================================
+
+PHYSICAL MOUNTING LOCATIONS
+--------------------------------------------------------------------------------
+CENTER (Frame Center of Gravity):
+  [X] 9-Axis IMU - Must be level, vibration dampened
+  [X] Flight controller - Close to IMU
+  [X] Barometer - Needs static pressure port (foam covered)
+  
+TOP (Clear view of sky):
+  [X] GPS module - Active antenna facing up
+  [X] 4G/LTE antenna (if used)
+  
+BOTTOM (Downward facing):
+  [X] Optical flow sensor - Pointing straight down
+  [X] ToF distance sensor - For landing assistance
+  [X] FPV/AI camera - Gimbal mounted
+  
+FRONT/REAR (Horizontal):
+  [X] Ultrasonic rangefinders - Forward/rear obstacle detection
+  [X] LED status lights
+  
+ARMS (Distributed):
+  [X] ESCs - One per motor
+  [X] GPS compass (can be on arm for EMI separation)
+
+WIRING CONSIDERATIONS
+--------------------------------------------------------------------------------
+Signal Integrity:
+  - Keep sensor wires < 15cm when possible
+  - Twisted pairs for I2C/UART (reduce EMI)
+  - Shielded cables near ESCs/motors
+  - Star ground topology (all grounds to one point)
+
+Power Distribution:
+  - 3.3V rail: IMU, GPS, some sensors (low noise!)
+  - 5V rail: Servos, cameras, most sensors
+  - Battery direct: Motors via ESCs
+  - Use LC filters on sensor power (ferrite beads + capacitors)
+
+Communication Buses:
+  - I2C bus: IMU, barometer, ToF, OLED (max 400kHz)
+  - SPI bus: Optical flow, high-speed sensors (up to 10MHz)
+  - UART: GPS, AI camera, telemetry (various baud rates)
+  - PWM: ESCs, servos (50-490Hz)
+
+================================================================================
+3. CAMERA SYSTEMS SETUP
+================================================================================
+
+FPV CAMERA (Real-Time Pilot View)
+--------------------------------------------------------------------------------
+Recommended: Foxeer Razer Mini or Caddx Ratel 2
+Specifications:
+  - Resolution: 1200TVL (analog)
+  - Latency: <10ms (critical for flying)
+  - FOV: 160° (wide angle lens)
+  - WDR: Wide Dynamic Range (handles bright/dark)
+  - Weight: 5-8g
+
+Mounting:
+  - On gimbal ring (main impeller)
+  - Camera angle: 20-40° uptilt (racing) or 0° (cinematic)
+  - Vibration isolation: TPU dampeners
+
+Wiring:
+  - Power: 5V from BEC (100-150mA)
+  - Video out: To VTX (video transmitter)
+  - OSD: Optional overlay from FC
+
+Video Transmitter:
+  - 5.8GHz analog (low latency)
+  - Power: 25mW (legal, 500m) to 800mW (2km range)
+  - Channels: 48+ (avoid interference)
+  - SmartAudio: FC controls VTX settings
+
+Ground Equipment:
+  - FPV goggles: Skyzone, FatShark, DJI
+  - Diversity receiver: Dual antennas for better signal
+
+HD RECORDING CAMERA (Optional)
+--------------------------------------------------------------------------------
+Options:
+  1. RunCam 5 Orange - $100, 4K30, lightweight (35g)
+  2. DJI Action 2 - $120, 4K120, magnetic mount (45g)
+  3. GoPro Session 5 - $50 used, 4K30, discontinued (75g)
+  4. Insta360 Go 2 - $150, tiny (27g), stabilized
+
+Mounting:
+  - Top of frame (separate from FPV camera)
+  - OR on gimbal (smooth footage)
+  - Needs vibration isolation
+
+Recording Trigger:
+  - Manual (press button before flight)
+  - Auto-start via FC (PWM signal on arming)
+  - WiFi remote (phone app)
+
+AI VISION CAMERA (Computer Vision & Tracking)
+--------------------------------------------------------------------------------
+OPTION A: ESP32-CAM (Budget - $8)
+  Pros:
+    - Extremely cheap
+    - WiFi streaming built-in
+    - Arduino IDE compatible
+    - 2MP camera decent quality
+  Cons:
+    - Limited processing (basic AI only)
+    - 30fps max
+  
+  Use Cases:
+    - Color blob tracking
+    - Basic edge detection
+    - QR code / barcode reading
+    - Live video streaming to phone
+  
+  Wiring:
+    - 5V power (200-400mA peak)
+    - UART to FC (send tracking data)
+    - WiFi for video stream
+
+OPTION B: Pixy2 CMUcam5 (Easy - $60)
+  Pros:
+    - Plug-and-play
+    - Excellent Arduino support
+    - Fast (60fps)
+    - Pre-trained color recognition
+  Cons:
+    - Color-based only (no AI models)
+    - Limited to simple tasks
+  
+  Use Cases:
+    - Object tracking (person, ball, drone)
+    - Line following
+    - Barcode/sign recognition
+  
+  Wiring:
+    - SPI/I2C/UART (flexible)
+    - 5V @ 140mA
+    - Servo outputs (pan/tilt control)
+
+OPTION C: OpenMV Cam H7 Plus (Advanced - $80)
+  Pros:
+    - MicroPython scripting
+    - TensorFlow Lite support
+    - AprilTag/QR codes
+    - Face detection
+    - Custom AI models
+  Cons:
+    - More complex setup
+    - Needs programming knowledge
+  
+  Use Cases:
+    - Gesture control
+    - Person/face following
+    - AprilTag landing markers
+    - Custom object detection
+  
+  Wiring:
+    - UART to FC (tracking coordinates)
+    - SPI for high-speed data
+    - I2C for simple commands
+    - 3.6-5V @ 500mA peak
+
+OPTION D: Raspberry Pi Zero W + Camera (Premium - $30)
+  Pros:
+    - Full Linux OS
+    - OpenCV, TensorFlow
+    - WiFi/Bluetooth
+    - Powerful (for its size)
+  Cons:
+    - Power hungry (1-2W)
+    - Heavy (9g + camera 3g)
+    - Setup complexity
+  
+  Use Cases:
+    - Advanced AI (YOLO, MobileNet)
+    - Real-time SLAM
+    - Cloud processing offload
+    - Research/development
+
+THERMAL CAMERA (Night Operations - Optional)
+--------------------------------------------------------------------------------
+OPTION A: MLX90640 (Budget - $55)
+  - 32x24 pixels (low res)
+  - -40°C to 300°C range
+  - I2C interface
+  - 8Hz refresh rate
+  - Good for: Heat detection, basic thermal imaging
+
+OPTION B: FLIR Lepton 3.5 (Premium - $200)
+  - 160x120 pixels (high res)
+  - Radiometric (absolute temperature)
+  - SPI interface
+  - 8.7Hz (due to ITAR export control)
+  - Professional: Search & rescue, inspections
+
+Use Cases:
+  - Search and rescue (find people in dark/forest)
+  - Electrical inspection (hot spots)
+  - Wildlife monitoring (heat signatures)
+  - Night navigation (thermal map)
+
+Mounting:
+  - Next to main camera (co-aligned)
+  - Separate gimbal for independent view
+
+Integration:
+  - Overlay thermal on HD video (for recording)
+  - AI fusion: Combine thermal + RGB for better detection
+  - Temperature triggers (alert on hot spots)
+
+================================================================================
+4. AI VISION PROCESSING
+================================================================================
+
+OBJECT DETECTION PIPELINE
+--------------------------------------------------------------------------------
+1. Image Acquisition (Camera)
+   └─> 640x480 RGB @ 30fps
+   
+2. Pre-Processing (Resize/Normalize)
+   └─> 320x320 for AI models
+   └─> Adjust brightness/contrast
+   
+3. AI Inference (Model execution)
+   └─> YOLO Tiny / MobileNet SSD
+   └─> 10-30fps on edge devices
+   └─> Output: [class, confidence, bounding box]
+   
+4. Post-Processing (Tracking)
+   └─> Kalman filter (smooth predictions)
+   └─> Multi-object tracking (ID persistence)
+   └─> Target selection (closest/largest)
+   
+5. Control Output (to Flight Controller)
+   └─> Target coordinates: (x, y, distance)
+   └─> Gimbal control (keep target centered)
+   └─> Velocity commands (follow target)
+
+AI MODELS (Edge Deployment)
+--------------------------------------------------------------------------------
+MobileNet SSD v2:
+  - General object detection
+  - 80 classes (person, car, dog, etc.)
+  - 15-25fps on RPi, 30+fps on Jetson Nano
+  - 10MB model size
+
+YOLO Tiny:
+  - Faster than MobileNet
+  - 20 classes (simplified)
+  - 20-40fps on edge devices
+  - 6MB model size
+
+Custom Models (TensorFlow Lite):
+  - Train your own: detect specific objects
+  - Use Edge Impulse or Teachable Machine
+  - Optimize for your hardware
+  - 1-5MB typical
+
+Face Detection:
+  - Haar Cascades (fast, simple)
+  - DNN Face Detector (accurate)
+  - 30+fps on most hardware
+
+AprilTag Detection:
+  - Fiducial markers (like QR codes)
+  - 6DOF pose estimation
+  - Precision landing
+  - 15-30fps
+
+GESTURE RECOGNITION
+--------------------------------------------------------------------------------
+Hand Gestures:
+  - Palm up: Takeoff
+  - Palm down: Land
+  - Point: Follow me
+  - Peace sign: Photo/video
+  - Fist: Stop/hover
+  - Wave: Return home
+
+Implementation:
+  1. Detect hand (color or AI model)
+  2. Extract hand shape (contours)
+  3. Classify gesture (CNN or decision tree)
+  4. Send command to FC
+
+Accuracy:
+  - 90%+ in good lighting
+  - 70-80% in low light
+  - Requires training per user
+
+PERSON FOLLOWING
+--------------------------------------------------------------------------------
+Detection:
+  - AI model detects "person" class
+  - Get bounding box center and size
+
+Tracking:
+  - Kalman filter for smooth tracking
+  - Predict position if lost temporarily
+  - Handle occlusions (person behind tree)
+
+Distance Estimation:
+  - Bounding box height → distance
+  - Or use ToF/ultrasonic for actual range
+  - Stereo camera for depth map (advanced)
+
+Control Loop:
+  - If person left of center: yaw left
+  - If person right: yaw right
+  - If too close: move back
+  - If too far: move forward
+  - Maintain altitude (barometer + GPS)
+
+Safety:
+  - Max follow speed: 5 m/s
+  - Min distance: 3 meters
+  - Obstacle avoidance active
+  - Timeout if person lost >10 sec
+
+================================================================================
+5. GYRO & IMU CONFIGURATION
+================================================================================
+
+9-AXIS IMU SENSOR FUSION
+--------------------------------------------------------------------------------
+Components:
+  1. Gyroscope (3-axis) - Angular velocity
+     - Detects rotation rate (°/sec)
+     - Fast (8kHz sample rate)
+     - Drifts over time (integration error)
+  
+  2. Accelerometer (3-axis) - Linear acceleration
+     - Detects gravity vector (roll/pitch from gravity)
+     - Slow response (noisy at high frequency)
+     - Accurate long-term (no drift)
+  
+  3. Magnetometer (3-axis) - Compass heading
+     - Detects Earth's magnetic field
+     - Provides absolute yaw reference
+     - Sensitive to EMI (motors, ESCs)
+
+Sensor Fusion Algorithm:
+  - Complementary Filter (simple, fast)
+    angle = 0.98 * (angle + gyro * dt) + 0.02 * accel_angle
+  
+  - Madgwick Filter (better, still fast)
+    Quaternion-based, handles all 9 axes
+    Used in most Arduino implementations
+  
+  - Kalman Filter (best, complex)
+    Optimal estimation, used in commercial FCs
+    Higher CPU cost
+
+OUTPUT: Attitude (roll, pitch, yaw)
+  - Roll: Left/right tilt (-180° to +180°)
+  - Pitch: Forward/back tilt (-90° to +90°)
+  - Yaw: Compass heading (0° to 360°)
+
+IMU CALIBRATION (Critical!)
+--------------------------------------------------------------------------------
+Gyro Calibration:
+  1. Place drone on level surface
+  2. Keep completely still for 10 seconds
+  3. FC records gyro bias (zero offset)
+  4. Must recalibrate if temperature changes >20°C
+
+Accelerometer Calibration:
+  1. Six-point calibration (all axes)
+     - Level, upside down
+     - Left side, right side
+     - Nose up, nose down
+  2. FC calculates scaling factors
+  3. Do on level surface (use bubble level)
+
+Magnetometer Calibration:
+  1. "Figure-8" motion in air
+  2. Rotate drone in all orientations
+  3. FC maps magnetic field distortions
+  4. Avoid motors/ESCs during calibration
+  5. Recalibrate at each flight location (magnetic variation)
+
+Vibration Isolation:
+  - Use foam or rubber dampeners (4-8mm thick)
+  - Frequency: Isolate 200-500Hz (motor vibrations)
+  - Mass-spring system: F_resonant = 1/(2π)√(k/m)
+  - Target: <20mg vibration at hover
+
+IMU MOUNTING BEST PRACTICES
+--------------------------------------------------------------------------------
+Position:
+  - At center of gravity (CG)
+  - Minimize moment arm (reduce acceleration effects)
+  - Flat, level surface
+
+Orientation:
+  - Arrow/mark pointing forward
+  - Most FCs support rotation (0°, 90°, 180°, 270°)
+  - Configure in FC software (Betaflight, INAV)
+
+Thermal:
+  - Avoid heat sources (ESC, regulator)
+  - Keep cool (temp coefficient affects drift)
+
+Vibration:
+  - Soft mount (TPU dampeners)
+  - Or hard mount + software filtering (notch filter)
+
+ADVANCED: MULTIPLE IMU FUSION
+--------------------------------------------------------------------------------
+Why use 2 IMUs?
+  - Redundancy (one fails, use other)
+  - Better noise rejection (average readings)
+  - Detect sensor faults (compare outputs)
+
+Commercial drones (DJI, etc.) use dual IMUs:
+  - Primary: High-rate gyro for stabilization
+  - Secondary: Low-noise accel for smooth flight
+  - Voting algorithm: Detect outliers
+
+DIY Implementation:
+  - Arduino: Limited pins/processing (stick to one)
+  - F7 FC: Can handle 2+ IMUs
+  - Weighted average: Primary 80%, secondary 20%
+
+================================================================================
+6. GPS & NAVIGATION
+================================================================================
+
+GPS MODULE SETUP
+--------------------------------------------------------------------------------
+Recommended: UBLOX M8N or M10 (latest)
+Specifications:
+  - Update rate: 5-10Hz
+  - Accuracy: 2.5m CEP (circular error probable)
+  - Cold start: 26 seconds
+  - Hot start: 1 second
+  - Sensitivity: -167 dBm (excellent)
+
+Mounting:
+  - Top of drone (clear sky view)
+  - Active antenna facing UP
+  - Away from carbon fiber (RF blocking)
+  - >10cm from ESCs/motors (EMI)
+
+Wiring:
+  - UART to FC (9600-115200 baud, typically 115200)
+  - 3.3V or 5V power (check module specs)
+  - GND (common ground)
+  - Optional: I2C for compass (if integrated)
+
+GPS Lock:
+  - 4+ satellites: 3D fix (lat, lon, alt)
+  - 6+ satellites: Good accuracy
+  - 10+ satellites: Excellent (<1m with SBAS)
+  - Wait for solid lock before takeoff!
+
+GPS DILUTION OF PRECISION (DOP)
+--------------------------------------------------------------------------------
+HDOP (Horizontal): <2.0 excellent, <5.0 acceptable
+VDOP (Vertical): <3.0 excellent, <7.0 acceptable
+PDOP (Position): √(HDOP² + VDOP²)
+
+Check DOP in FC OSD or configurator
+Poor DOP → Don't fly (GPS not reliable)
+
+GPS FUSION WITH OTHER SENSORS
+--------------------------------------------------------------------------------
+GPS + Barometer = Altitude
+  - GPS altitude is noisy (±5-10m)
+  - Barometer smooth (±0.5m relative)
+  - Fuse: GPS for absolute, baro for relative
+  - Result: Stable altitude hold
+
+GPS + Optical Flow = Indoor/Outdoor Hybrid
+  - Outdoors: GPS position hold
+  - Indoors/GPS-denied: Optical flow
+  - Seamless transition (sensor fusion)
+
+GPS + Compass = True Heading
+  - Compass drift corrected by GPS ground track
+  - GPS velocity vector → heading (when moving)
+  - Compass → heading (when stationary)
+
+AUTONOMOUS WAYPOINT NAVIGATION
+--------------------------------------------------------------------------------
+Waypoint Structure:
+  - Latitude, Longitude (degrees)
+  - Altitude (meters above home)
+  - Speed (m/s)
+  - Action (hover, photo, etc.)
+
+Mission Planning:
+  - Ground station software (Mission Planner, QGC)
+  - Upload waypoints via MAVLink
+  - FC executes mission autonomously
+
+Navigation Algorithm:
+  1. Get current position (GPS)
+  2. Calculate bearing to next waypoint
+  3. Calculate distance to waypoint
+  4. Adjust heading (yaw control)
+  5. Adjust speed (pitch/roll for lateral movement)
+  6. Check arrival (within 2-5m radius)
+  7. Execute action, move to next waypoint
+
+Safety:
+  - Geofence: Max distance from home (e.g., 500m)
+  - Max altitude (e.g., 120m / 400ft FAA limit)
+  - Low battery: Auto RTH (return to home)
+  - Signal loss: Auto RTH or land
+
+RETURN TO HOME (RTH)
+--------------------------------------------------------------------------------
+Trigger Conditions:
+  - Low battery (<20%)
+  - Radio signal lost (>2 seconds)
+  - Manual button press
+
+RTH Procedure:
+  1. Record home position at arming (GPS lock required)
+  2. On trigger: Climb to RTH altitude (20-50m)
+  3. Rotate to face home
+  4. Fly direct line to home (GPS nav)
+  5. Arrive over home (within 2m radius)
+  6. Descend slowly (1-2 m/s)
+  7. Land (use ToF for precision)
+  8. Disarm motors
+
+Advanced RTH:
+  - Terrain following (maintain AGL, not MSL)
+  - Obstacle avoidance (detour around obstacles)
+  - Precision landing (AprilTag markers)
+
+================================================================================
+7. OBSTACLE AVOIDANCE SYSTEM
+================================================================================
+
+SENSOR ARRAY FOR 360° COVERAGE
+--------------------------------------------------------------------------------
+Front: Ultrasonic or ToF (0-4m range)
+Rear: Ultrasonic (0-4m range)
+Bottom: ToF + Optical Flow (landing & position)
+Top: Optional (indoor ceiling clearance)
+
+Ultrasonic Sensors (HC-SR04P)
+  - Range: 2cm - 4m
+  - Beam angle: 15-30° (cone)
+  - Update rate: 20-50Hz
+  - Cost: $2-5 each
+  - Affected by: Sound-absorbing surfaces, rain
+
+ToF Sensors (VL53L1X)
+  - Range: 0.4 - 4m
+  - Beam angle: 27° (narrow)
+  - Update rate: 50Hz
+  - Cost: $5-10
+  - Accurate: ±1mm
+  - Not affected by surface texture
+
+OBSTACLE DETECTION ALGORITHM
+--------------------------------------------------------------------------------
+1. Sensor Reading
+   └─> Distance = 1.5m front obstacle
+
+2. Threshold Check
+   └─> If distance < SAFE_DISTANCE (e.g., 2m):
+       └─> Obstacle detected!
+
+3. Avoidance Action
+   Option A: Brake (stop forward movement)
+   Option B: Climb (go over obstacle)
+   Option C: Detour (go around left/right)
+
+4. Path Planning
+   └─> Calculate alternate route
+   └─> Resume mission after clearing obstacle
+
+Tuning Parameters:
+  - SAFE_DISTANCE: 2-3 meters (gives time to react)
+  - BRAKE_DISTANCE: 1 meter (emergency stop)
+  - CLIMB_HEIGHT: 2 meters above obstacle
+  - DETOUR_DISTANCE: 3 meters left/right
+
+AI VISION-BASED OBSTACLE DETECTION
+--------------------------------------------------------------------------------
+Advantages over rangefinders:
+  - Detect obstacles at any distance (in camera FOV)
+  - Classify obstacle type (person, tree, wall)
+  - 3D mapping (stereo or monocular SLAM)
+
+Implementation:
+  1. Depth Estimation (monocular)
+     - AI model predicts depth from single image
+     - Not as accurate as stereo, but lighter
+  
+  2. Semantic Segmentation
+     - Classify every pixel (sky, ground, obstacle)
+     - Free space = safe to fly
+     - Obstacle = avoid
+
+  3. Optical Flow + Structure from Motion
+     - Track features between frames
+     - Estimate 3D structure
+     - Real-time SLAM (ORB-SLAM, etc.)
+
+Processing:
+  - Requires significant compute (Jetson Nano+)
+  - 10-20fps for real-time
+  - Complements rangefinders (sensor fusion)
+
+SENSOR FUSION FOR ROBUST AVOIDANCE
+--------------------------------------------------------------------------------
+Layer 1: Rangefinders (primary, fast)
+  - React immediately (<50ms latency)
+  - Simple algorithm (threshold-based)
+
+Layer 2: Optical Flow (secondary)
+  - Detect motion toward obstacles
+  - Fuse with rangefinders for confidence
+
+Layer 3: AI Vision (tertiary, smart)
+  - Identify obstacle type
+  - Predict trajectory (moving obstacles)
+  - Choose best avoidance strategy
+
+Decision Logic:
+  IF rangefinder < 1m: Emergency brake (override all)
+  ELSE IF AI detects obstacle + rangefinder < 2m: Cautious avoidance
+  ELSE IF only AI detects: Prepare to avoid (slow down)
+
+================================================================================
+8. AUTONOMOUS FLIGHT MODES
+================================================================================
+
+MODE 1: MANUAL (NO STABILIZATION)
+  - Direct stick to motor control
+  - No sensors used (except battery voltage)
+  - For expert pilots only
+  - NOT RECOMMENDED for this design
+
+MODE 2: STABILIZE (ANGLE MODE)
+  - IMU-based: Level horizon maintained
+  - Sticks = target angle (e.g., 30° roll)
+  - Returns to level when sticks centered
+  - BEST for beginners
+
+MODE 3: ALTITUDE HOLD
+  - Stabilize + Barometer hold altitude
+  - Throttle controls climb/descend rate
+  - Hover in place (altitude locked)
+  - Requires: Barometer
+
+MODE 4: POSITION HOLD (LOITER)
+  - Altitude hold + GPS/Optical flow holds position
+  - Drone stays at GPS coordinates
+  - Drifts compensated automatically
+  - Requires: GPS or optical flow
+
+MODE 5: RETURN TO HOME (RTH)
+  - Autonomous GPS navigation to home point
+  - Climbs to safe altitude, flies home, lands
+  - Requires: GPS lock at arming
+
+MODE 6: WAYPOINT MISSION
+  - Follow pre-programmed GPS waypoints
+  - Automated survey, inspection routes
+  - Requires: GPS, mission uploaded
+
+MODE 7: FOLLOW ME
+  - GPS tracker on person (phone or dedicated)
+  - Drone follows at set distance/altitude
+  - Can use AI vision for visual tracking
+  - Requires: GPS + AI camera (optional)
+
+MODE 8: ORBIT (POINT OF INTEREST)
+  - Circle around a GPS point or visual target
+  - Gimbal keeps camera pointed at center
+  - Requires: GPS or AI vision
+
+MODE 9: GESTURE CONTROL
+  - AI camera recognizes hand signals
+  - Takeoff, land, follow, photo commands
+  - Requires: AI vision camera (OpenMV/Pixy2)
+
+MODE 10: COLLISION AVOIDANCE
+  - Rangefinders + AI vision detect obstacles
+  - Auto-brake or detour
+  - Always active (background safety)
+  - Requires: Ultrasonic/ToF sensors
+
+MODE SWITCHING
+--------------------------------------------------------------------------------
+Radio Transmitter:
+  - 3-position switch: Manual / Stabilize / GPS
+  - Auxiliary channels for RTH, missions
+
+Gesture Control:
+  - Override via gestures (when in AI mode)
+
+Failsafe:
+  - Signal loss: Auto RTH or Land (user configurable)
+  - Low battery: Force RTH
+
+================================================================================
+9. POWER BUDGET & MANAGEMENT
+================================================================================
+
+POWER CONSUMPTION BREAKDOWN
+--------------------------------------------------------------------------------
+Component                   Current (mA)   Power (W)   Notes
+--------------------------------------------------------------------------
+Main motor (hover)          15,000 mA      16.7 W      @ 11.1V, 1350mA avg
+4x Peripheral motors        8,000 mA       8.9 W       @ 11.1V, 2000mA total
+3x Gimbal servos (moving)   600 mA         3.0 W       @ 5V, 200mA each peak
+Flight controller           300 mA         1.5 W       @ 5V, F7 FC
+GPS module                  50 mA          0.25 W      @ 5V
+9-Axis IMU                  10 mA          0.05 W      @ 3.3V
+Barometer                   5 mA           0.025 W     @ 3.3V
+Optical flow sensor         30 mA          0.15 W      @ 5V
+ToF distance sensor         20 mA          0.10 W      @ 5V
+Ultrasonic (2x)             30 mA          0.15 W      @ 5V
+FPV camera                  150 mA         0.75 W      @ 5V
+Video transmitter (500mW)   600 mA         3.0 W       @ 5V
+AI camera (ESP32-CAM)       300 mA         1.5 W       @ 5V
+OR AI camera (Pixy2)        140 mA         0.7 W       @ 5V
+OR AI computer (Jetson Nano) 2000 mA       10 W        @ 5V (peak 15W)
+LED ring (50% brightness)   200 mA         1.0 W       @ 5V
+Radio receiver              50 mA          0.25 W      @ 5V
+--------------------------------------------------------------------------
+TOTAL (Basic + Sensors):    ~25 A          30-35 W     During flight
+TOTAL (With AI camera):     ~25.3 A        31-36 W     ESP32-CAM
+TOTAL (With Jetson Nano):   ~27 A          40-50 W     Full autonomous
+
+BATTERY SELECTION
+--------------------------------------------------------------------------------
+Basic Build (30W avg):
+  - 4S 1500mAh 25C LiPo
+  - Max discharge: 37.5A (1500 * 25 / 1000)
+  - Flight time: 8-10 minutes
+  - Weight: 160g
+
+Sensor Build (35W avg):
+  - 4S 2000mAh 30C LiPo
+  - Max discharge: 60A
+  - Flight time: 9-12 minutes
+  - Weight: 215g
+
+Full AI Build (45W avg):
+  - 4S 2500mAh 35C LiPo
+  - OR 2x 4S 1500mAh parallel (3000mAh total)
+  - Max discharge: 87.5A (plenty of headroom)
+  - Flight time: 8-12 minutes
+  - Weight: 270g (single) or 320g (dual)
+
+VOLTAGE REGULATION
+--------------------------------------------------------------------------------
+Battery (4S LiPo): 16.8V fully charged → 14.8V nominal → 13.2V low
+                   ↓
+Main ESCs + Motors: Direct battery connection (14.8V)
+                   ↓
+5V BEC (3A): For servos, FC, sensors
+  - Buck converter (LM2596 or equivalent)
+  - 5.0V ±0.1V regulation
+  - Low ripple (<50mV)
+                   ↓
+3.3V Regulator (1A): For IMU, low-voltage sensors
+  - LDO regulator (AMS1117-3.3)
+  - From 5V rail (not battery directly)
+
+BATTERY MONITORING
+--------------------------------------------------------------------------------
+Voltage Sensing:
+  - Voltage divider (11:1 ratio for 4S)
+  - ADC input on FC
+  - Display on OSD (real-time)
+
+Current Sensing:
+  - Hall effect sensor (ACS712 or similar)
+  - OR ESC telemetry (built-in on BLHeli32)
+  - Calculate mAh consumed
+  - Trigger RTH at 80% capacity
+
+Low Battery Alarm:
+  - Visual: LED color change (green → yellow → red)
+  - Audio: Buzzer (escalating beeps)
+  - Action: Force RTH at 20% remaining
+  - Emergency land at 10% (unsafe to RTH)
+
+Cell Balancing:
+  - Always use balance charger
+  - Check cell voltage before flight (3.7-4.2V per cell)
+  - Discard battery if any cell <3.0V
+
+================================================================================
+10. WIRING DIAGRAMS
+================================================================================
+
+FULL SYSTEM WIRING (F7 Flight Controller)
+--------------------------------------------------------------------------------
+
+BATTERY (4S LiPo, 14.8V nominal)
+    |
+    ├──> 5x ESCs (motor power) ──> Motors
+    |
+    └──> Power Distribution Board
+             |
+             ├──> 5V BEC (3A) ──> Flight Controller (5V rail)
+             |         |
+             |         ├──> Servos (3x, via FC PWM)
+             |         ├──> FPV Camera (5V)
+             |         ├──> Video Transmitter (5V)
+             |         ├──> GPS Module (5V)
+             |         ├──> AI Camera (5V)
+             |         ├──> LED Ring (5V)
+             |         └──> Radio Receiver (5V)
+             |
+             └──> 3.3V LDO ──> IMU, Barometer, ToF (3.3V sensors)
+
+SIGNAL CONNECTIONS (to Flight Controller):
+  UART1: GPS (RX/TX)
+  UART2: AI Camera (RX/TX)
+  UART3: Telemetry / 4G Module (RX/TX)
+  UART4: Radio Receiver (SBUS/CRSF)
+  
+  I2C1: 9-Axis IMU, Barometer, ToF Sensor, OLED (SDA/SCL)
+  
+  SPI1: Optical Flow Sensor (MISO/MOSI/SCK/CS)
+  
+  PWM Outputs:
+    1-5: ESCs (motors)
+    6-8: Gimbal servos (3x)
+    9: LED ring (WS2812 signal)
+    10: VTX control (SmartAudio)
+    11-12: Spare
+  
+  Analog Inputs:
+    ADC1: Battery voltage (voltage divider)
+    ADC2: Current sensor
+  
+  Digital GPIO:
+    D1: Buzzer (piezo)
+    D2: Ultrasonic Trig (front)
+    D3: Ultrasonic Echo (front)
+    D4: Ultrasonic Trig (rear)
+    D5: Ultrasonic Echo (rear)
+
+ARDUINO NANO WIRING (Simplified Budget Build)
+--------------------------------------------------------------------------------
+
+POWER:
+  Battery (7.4V or 11.1V)
+    |
+    ├──> ESCs (5x) ──> Motors
+    |
+    └──> Buck Converter (5V, 3A)
+             |
+             ├──> Arduino Nano (5V pin)
+             ├──> PCA9685 Servo Driver (5V)
+             ├──> Servos (via PCA9685)
+             ├──> GPS, Sensors, Camera (5V)
+             └──> Common GND
+
+SIGNALS (Arduino Nano):
+  A4 (SDA): I2C bus ──> MPU6050, PCA9685, OLED, Barometer
+  A5 (SCL): I2C bus ──> (shared with above)
+  
+  D0 (RX): GPS UART (RX)
+  D1 (TX): GPS UART (TX)
+  
+  D2: NRF24L01 CE
+  D3: NRF24L01 CSN
+  
+  D9: Buzzer
+  D10: LED ring (WS2812)
+  
+  D11 (MOSI): NRF24 / Optical Flow
+  D12 (MISO): NRF24 / Optical Flow
+  D13 (SCK): NRF24 / Optical Flow
+  
+  A0: Battery voltage (analog)
+  A1: Spare analog input
+
+PCA9685 OUTPUTS (PWM):
+  0-2: Gimbal servos (3x)
+  3: Main motor ESC
+  4-7: Peripheral motor ESCs (4x)
+
+CABLE MANAGEMENT TIPS
+--------------------------------------------------------------------------------
+1. Use servo extension cables (pre-made, clean)
+2. Label all wires (masking tape + marker)
+3. Twist I2C/UART pairs (reduce EMI)
+4. Route signal wires away from ESCs/motors
+5. Zip tie bundles to frame (strain relief)
+6. Use JST connectors (modular, easy to disconnect)
+7. Heat shrink all solder joints (prevent shorts)
+8. Test continuity before powering on (multimeter)
+
+================================================================================
+11. SOFTWARE ARCHITECTURE
+================================================================================
+
+FLIGHT CONTROLLER FIRMWARE OPTIONS
+--------------------------------------------------------------------------------
+OPTION A: Betaflight (Racing/Acro focus)
+  Pros:
+    - Best performance (high loop rates)
+    - Excellent tuning tools
+    - Active community
+  Cons:
+    - Limited GPS features
+    - Not designed for autonomous flight
+  
+  Use case: FPV racing, acrobatics
+
+OPTION B: INAV (GPS/Autonomous focus)
+  Pros:
+    - Full GPS waypoint missions
+    - Return to home
+    - Position hold
+    - Good sensor support
+  Cons:
+    - Slower loop rates than Betaflight
+    - Less community support
+  
+  Use case: Autonomous missions, this drone! ★
+
+OPTION C: ArduPilot (Professional)
+  Pros:
+    - Most features (missions, terrain, etc.)
+    - MAVLink protocol (industry standard)
+    - Supports everything (planes, copters, rovers)
+  Cons:
+    - Complex setup
+    - Requires powerful FC (F7+)
+    - Steep learning curve
+  
+  Use case: Research, commercial applications
+
+OPTION D: Custom Arduino Code
+  Pros:
+    - Full control
+    - Educational
+    - Lightweight
+  Cons:
+    - No features (you code everything)
+    - Time-consuming
+    - Hard to tune
+  
+  Use case: Learning, budget builds
+
+RECOMMENDED FOR THIS PROJECT: INAV
+  - Best balance of features and ease of use
+  - Good GPS support
+  - Supports custom mixer (our unique design)
+
+INAV CONFIGURATION
+--------------------------------------------------------------------------------
+1. Mixer Setup (Custom)
+   - Main motor: Center impeller
+   - 4x Peripheral motors: Arms
+   - 3x Servos: Gimbal ring control
+   - Define motor/servo mixing logic
+
+2. Sensor Configuration
+   - IMU: Orientation, calibration
+   - GPS: Baud rate, protocol
+   - Barometer: Calibrate at home altitude
+   - Mag: Calibrate (figure-8)
+   - Optical flow: Enable, configure scale
+
+3. PID Tuning
+   - Start with INAV defaults
+   - Auto-tune if available
+   - Manual tuning: P, I, D gains
+   - Test in stabilize mode first
+
+4. Modes Setup
+   - Arm switch
+   - Flight modes (stabilize, altitude hold, GPS)
+   - RTH switch
+   - Failsafe (what happens on signal loss)
+
+5. OSD Configuration
+   - Battery voltage
+   - GPS status (satellites, HDOP)
+   - Flight mode
+   - Altitude, speed
+
+6. Blackbox Logging
+   - Enable for tuning
+   - Log to SD card or flash
+   - Analyze in Blackbox Explorer
+
+AI SOFTWARE STACK
+--------------------------------------------------------------------------------
+For AI Camera (Python-based, RPi/Jetson):
+
+1. Image Acquisition
+   - OpenCV (cv2.VideoCapture)
+   - PiCamera library (Raspberry Pi)
+   - V4L2 (Video4Linux2)
+
+2. AI Inference
+   - TensorFlow Lite (optimized for edge)
+   - ONNX Runtime (cross-platform)
+   - PyTorch Mobile (if trained in PyTorch)
+
+3. Object Tracking
+   - KCF/MOSSE tracker (OpenCV)
+   - SORT (Simple Online Realtime Tracking)
+   - DeepSORT (with appearance features)
+
+4. Communication (to FC)
+   - MAVLink protocol (if using ArduPilot)
+   - MSP protocol (if using Betaflight/INAV)
+   - Custom UART protocol (simple)
+
+5. Example Code Structure:
+   ```python
+   import cv2
+   import tflite_runtime.interpreter as tflite
+   import serial
+   
+   # Load AI model
+   interpreter = tflite.Interpreter(model_path="model.tflite")
+   interpreter.allocate_tensors()
+   
+   # Open camera
+   cap = cv2.VideoCapture(0)
+   
+   # Open serial to FC
+   ser = serial.Serial('/dev/ttyUSB0', 115200)
+   
+   while True:
+       # Capture frame
+       ret, frame = cap.read()
+       
+       # Run AI inference
+       results = run_inference(interpreter, frame)
+       
+       # Track target
+       target_x, target_y = track_target(results)
+       
+       # Send to FC
+       send_tracking_data(ser, target_x, target_y)
+   ```
+
+For ESP32-CAM (Arduino IDE):
+   - Use ESP32-CAM libraries
+   - Basic AI: Color blob detection
+   - WiFi streaming to phone/computer
+   - UART to main FC (tracking coordinates)
+
+GROUND CONTROL SOFTWARE
+--------------------------------------------------------------------------------
+Options:
+  - INAV Configurator (setup, tuning)
+  - Mission Planner (waypoint missions, telemetry)
+  - QGroundControl (modern, cross-platform)
+  - Mobile apps (for 4G control)
+
+Features:
+  - Real-time telemetry (altitude, speed, battery)
+  - Mission planning (upload waypoints)
+  - Video streaming (FPV or HD)
+  - Data logging (flight analysis)
+
+================================================================================
+12. PERFORMANCE OPTIMIZATION
+================================================================================
+
+THRUST-TO-WEIGHT RATIO
+--------------------------------------------------------------------------------
+Formula: TWR = Total Thrust / Total Weight
+
+Target TWR:
+  - Minimum: 1.5:1 (can barely lift off)
+  - Good: 2:1 (stable, maneuverable)
+  - Excellent: 3:1 (agile, acrobatic)
+  - Overkill: 4:1+ (racing quads)
+
+Our Drone:
+  - Weight: 650g (with sensors + camera)
+  - Thrust (all motors): 700g @ 80% throttle
+  - TWR = 700 / 650 = 1.08:1 @ 80%
+  - TWR = 875 / 650 = 1.35:1 @ 100% (estimated)
+
+Analysis: Adequate for slow flight, not acrobatic
+Improvement: Increase motor size or reduce weight
+
+FLIGHT TIME OPTIMIZATION
+--------------------------------------------------------------------------------
+1. Reduce Weight
+   - 3D print hollow parts (50% infill → 30%)
+   - Use lighter materials (PLA → PLA+, PETG → Nylon)
+   - Remove unnecessary components
+   - Every 100g saved = +1-2 min flight time
+
+2. Increase Battery Capacity
+   - Larger battery = more weight (diminishing returns)
+   - Optimal: Battery = 30-40% of total weight
+   - 2500mAh 4S = ~270g (good balance)
+
+3. Reduce Drag
+   - Streamline frame (aerodynamic design)
+   - Minimize exposed wiring
+   - Smooth surfaces (less turbulence)
+
+4. Optimize Propulsion Efficiency
+   - Use efficient impeller design (AI-optimized blades)
+   - Match motor KV to impeller size
+   - ESC calibration (linear throttle response)
+   - Low hover throttle = efficient (aim for 40-50%)
+
+5. Throttle Management
+   - Slow, smooth movements (avoid rapid throttle changes)
+   - Cruise at optimal speed (too fast = drag, too slow = inefficient)
+   - Use altitude hold (consistent throttle)
+
+LATENCY REDUCTION (Critical for AI)
+--------------------------------------------------------------------------------
+Camera to AI to FC to Motors:
+  - Camera: 30-60ms (capture + processing)
+  - AI inference: 30-100ms (depends on model)
+  - Communication: 5-10ms (UART to FC)
+  - FC processing: 1-2ms (PID loop)
+  - ESC response: 2-5ms (motor spin-up)
+  - Total: 70-180ms end-to-end
+
+Optimization:
+  - Use lightweight AI models (YOLO Tiny < MobileNet)
+  - Optimize image resolution (lower = faster)
+  - Use GPU acceleration (Jetson Nano)
+  - Minimize communication overhead (batch data)
+  - Target: <100ms total latency for responsive control
+
+VIBRATION DAMPING
+--------------------------------------------------------------------------------
+Sources:
+  - Motor imbalance (uneven blades)
+  - Propeller damage (cracks, chips)
+  - Frame resonance (harmonics)
+  - ESC cogging (bad timing)
+
+Solutions:
+  - Balance all impellers/props (<0.5g imbalance)
+  - Soft-mount motors (TPU dampeners)
+  - Soft-mount FC/IMU (isolate from vibrations)
+  - Use dynamic notch filter (Betaflight/INAV)
+  - Check with blackbox logging (FFT analysis)
+
+Target: <0.05g RMS vibration at IMU
+
+RANGE EXTENSION
+--------------------------------------------------------------------------------
+Radio:
+  - Use long-range system (ELRS, TBS Crossfire)
+  - 900MHz better range than 2.4GHz
+  - Directional antenna on ground station
+  - 5-10km range achievable
+
+Video:
+  - 5.8GHz analog: 500m-2km (depending on power)
+  - DJI Digital FPV: 4-10km (HD, low latency)
+  - 4G LTE streaming: Unlimited (internet-based)
+
+Telemetry:
+  - LoRa radio: 10-20km (low bandwidth)
+  - 4G LTE: Unlimited (with data plan)
+
+Autonomous:
+  - GPS missions: No radio range limit
+  - Pre-programmed waypoints
+  - Auto RTH when mission complete
+
+================================================================================
+13. REAL-WORLD APPLICATIONS
+================================================================================
+
+AERIAL PHOTOGRAPHY & VIDEOGRAPHY
+--------------------------------------------------------------------------------
+Setup:
+  - HD camera (4K) on stabilized gimbal
+  - GPS waypoint missions for smooth paths
+  - Altitude hold + position lock
+  - FPV camera for framing
+
+Use Cases:
+  - Real estate tours (fly around property)
+  - Wedding videos (cinematic shots)
+  - YouTube vlogs (follow-me mode)
+  - Nature documentaries
+
+Tips:
+  - Fly slow (1-3 m/s for smooth footage)
+  - Use ND filters (reduce motion blur)
+  - Plan shots in advance (waypoints)
+  - Capture at golden hour (best lighting)
+
+SEARCH & RESCUE
+--------------------------------------------------------------------------------
+Setup:
+  - Thermal camera (FLIR Lepton)
+  - GPS + waypoint grid search
+  - Long-range radio (LoRa or 4G)
+  - Bright LED lights for signaling
+
+Use Cases:
+  - Find lost hikers (thermal signature)
+  - Locate missing pets (heat detection)
+  - Disaster response (survey damage)
+  - Avalanche search (IR through snow)
+
+Tips:
+  - Fly at night (thermal more effective)
+  - Grid search pattern (cover area systematically)
+  - Low altitude (50-100m) for better detail
+  - Coordinate with authorities (legal compliance)
+
+INSPECTION & SURVEYING
+--------------------------------------------------------------------------------
+Setup:
+  - HD camera (zoom lens optional)
+  - GPS waypoints for repeatable surveys
+  - Obstacle avoidance (close to structures)
+  - Telemetry logging (for reports)
+
+Use Cases:
+  - Roof inspection (avoid ladders)
+  - Cell tower inspection (antennas, cables)
+  - Bridge inspection (cracks, corrosion)
+  - Solar panel inspection (IR hotspots)
+  - Agriculture (crop health via NDVI)
+
+Tips:
+  - Fly autonomous missions (consistency)
+  - Take overlapping photos (photogrammetry)
+  - Use thermal for electrical hotspots
+  - Document with GPS-tagged photos
+
+DELIVERY & LOGISTICS
+--------------------------------------------------------------------------------
+Setup:
+  - Payload hook or container (center-mounted)
+  - GPS waypoint navigation
+  - Precision landing (AprilTag marker)
+  - 4G LTE for tracking
+
+Use Cases:
+  - Medical supply delivery (rural areas)
+  - Food delivery (short distances)
+  - Mail delivery (last-mile)
+  - Emergency supplies (disaster zones)
+
+Tips:
+  - Secure payload (prevent shifting CG)
+  - Test with dummy weight (same mass)
+  - Plan for increased flight time (heavier)
+  - Legal: Check local drone delivery laws
+
+SECURITY & SURVEILLANCE
+--------------------------------------------------------------------------------
+Setup:
+  - HD + thermal camera (day/night)
+  - Auto-patrol waypoints (perimeter)
+  - Object detection AI (person/vehicle)
+  - 4G streaming (remote monitoring)
+
+Use Cases:
+  - Property surveillance (perimeter patrol)
+  - Event security (crowd monitoring)
+  - Wildlife protection (anti-poaching)
+  - Border patrol (long-range)
+
+Tips:
+  - Respect privacy laws (no spying!)
+  - Fly at legal altitudes (120m / 400ft)
+  - Use encrypted video (security)
+  - Battery management (long patrols)
+
+EDUCATION & RESEARCH
+--------------------------------------------------------------------------------
+Setup:
+  - Open-source hardware/software
+  - Modular design (swap components)
+  - Data logging (all sensors)
+  - Custom AI models (research projects)
+
+Use Cases:
+  - STEM education (learn robotics, AI)
+  - University research (autonomy algorithms)
+  - AI model training (collect datasets)
+  - Sensor fusion experiments
+
+Tips:
+  - Document everything (reproducibility)
+  - Share results (open source)
+  - Collaborate (online communities)
+  - Publish findings (papers, blogs)
+
+ENTERTAINMENT & RECREATION
+--------------------------------------------------------------------------------
+Setup:
+  - FPV camera + goggles (immersive)
+  - Gesture control (fun interactions)
+  - Follow-me mode (selfies, sports)
+  - LED lights (night flying, shows)
+
+Use Cases:
+  - FPV racing (freestyle flying)
+  - Aerial selfies (follow-me mode)
+  - Light shows (LED choreography)
+  - Outdoor adventures (hiking, biking)
+
+Tips:
+  - Practice in open areas (safety)
+  - Use propeller guards (beginner-friendly)
+  - Respect no-fly zones (airports, etc.)
+  - Have fun, but fly responsibly!
+
+================================================================================
+FINAL NOTES
+================================================================================
+
+This drone design with advanced sensors, AI cameras, gyros, GPS, and autonomous
+capabilities represents a revolutionary approach to DIY drone building. You're
+not just building a drone—you're building a flying AI platform!
+
+Key Innovations:
+  ★ Bladeless impeller design (quiet, safe)
+  ★ Gimbal-mounted main impeller (vectored thrust)
+  ★ Multi-sensor fusion (GPS + optical flow + AI vision)
+  ★ Edge AI processing (on-board intelligence)
+  ★ Autonomous flight modes (waypoints, follow-me, RTH)
+  ★ Obstacle avoidance (rangefinders + AI)
+  ★ Budget-friendly (Arduino option <$300)
+
+Cost vs. Features:
+  - DJI Mini 3 Pro: $800, closed source, limited customization
+  - This drone: $400-750, open source, unlimited potential!
+
+Performance:
+  - Flight time: 6-12 minutes (depending on config)
+  - Range: 500m-20km (radio + GPS autonomous)
+  - Payload: 50-150g (cameras, sensors)
+  - Autonomous: Yes (GPS missions, AI tracking)
+
+Next Steps:
+  1. Choose your build level (basic / sensor / AI)
+  2. Order components (see DRONE_BOM.txt)
+  3. 3D print parts (generate_drone_parts.py)
+  4. Assemble step-by-step
+  5. Configure firmware (INAV recommended)
+  6. Calibrate sensors (IMU, GPS, etc.)
+  7. Bench test (props off!)
+  8. First flight (stabilize mode, low altitude)
+  9. Tune PIDs (blackbox logging)
+  10. Enable autonomous features (GPS, AI)
+
+Good luck building the future of drones! 🚁🤖✨
+
+Questions? Check DRONE_BOM.txt, AI_IMPELLER_TECH_DOC.md, or Arduino docs.
+
+Happy flying!
+================================================================================

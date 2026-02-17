@@ -1,0 +1,10 @@
+{
+  "variant_id": "bladed_rpm7000",
+  "type": "bladed",
+  "rpm": 7000,
+  "thrust": null,
+  "torque": null,
+  "power": null,
+  "efficiency": null,
+  "notes": "Fill in values from SimScale post-processing"
+}

@@ -1,0 +1,526 @@
+================================================================================
+GIMBAL IMPELLER DRONE - BILL OF MATERIALS
+================================================================================
+Design Specs: 90mm main impeller, 4x 50mm peripheral bladeless impellers
+Total wingspan: ~520mm, Estimated weight: 350-450g without batteries
+================================================================================
+
+MOTORS & PROPULSION
+--------------------------------------------------------------------------------
+[1x] Main Impeller Motor
+     - Brushless motor 2204-2206 size, 2300-2600 KV
+     - Shaft: 5mm, M3 mounting (16x16mm or 19x19mm pattern)
+     - Recommended: Emax RS2205 2300KV or equivalent
+     - Power: 15-20A @ 11.1V (3S LiPo)
+     
+[4x] Peripheral Impeller Motors
+     - Micro brushless 1105-1306 size, 4000-5000 KV
+     - Compact, lightweight (<15g each)
+     - Recommended: Emax RS1106 4500KV or GEPRC 1204 5000KV
+     - Power: 4-8A each @ 11.1V
+
+[5x] Motor ESCs (Electronic Speed Controllers)
+     - Main: 20A+ BLHeli_S or BLHeli32
+     - Peripheral: 10-12A micro ESC (4x)
+     - Alternative: 4-in-1 ESC (20A x4) + separate 20A for main
+     - Recommended: 30A 4-in-1 BLHeli32 ESC
+
+SERVOS & ACTUATORS
+--------------------------------------------------------------------------------
+[3x] Gimbal Control Servos (for main impeller tilt)
+     - MG90S Metal Gear Digital Servo
+     - Torque: 1.8 kg·cm @ 4.8V, 2.2 kg·cm @ 6V
+     - Speed: 0.1 sec/60° @ 4.8V
+     - Weight: 13.4g each
+     - Angle: 180° (±90°)
+     
+[4x] Peripheral Impeller Tilt Servos (optional - if using vectored thrust)
+     - SG90 or MG90S micro servo
+     - Weight: 9g each
+     - Torque: 1.8 kg·cm
+
+FLIGHT CONTROLLER & ELECTRONICS
+--------------------------------------------------------------------------------
+[1x] Flight Controller
+     - F4 or F7 processor, 8+ motor outputs
+     - Gyro/Accelerometer: MPU6000 or ICM42688
+     - Recommended: JHEMCU GHF420AIO or Matek F722-SE
+     - Features: OSD, Blackbox logging, UART ports
+     - Firmware: Betaflight 4.3+ or INAV
+     
+[1x] Radio Receiver
+     - 2.4GHz, 6+ channels
+     - Protocols: SBUS, PPM, or CRSF
+     - Recommended: FrSky XM+, FlySky FS-A8S, or ELRS receiver
+     - Weight: 1-3g
+
+[1x] Power Distribution
+     - If not integrated in FC/ESC
+     - XT60 or XT30 connector for battery
+     - 5V/6V BEC for servos (3-5A capable)
+
+ADVANCED SENSORS & TELEMETRY
+--------------------------------------------------------------------------------
+[1x] 9-Axis IMU (Gyro + Accelerometer + Magnetometer)
+     - ICM-20948 or BMI088 + QMC5883L combo
+     - Enhanced stabilization and compass heading
+     - I2C/SPI interface
+     - Cost: $8-15
+     - Drift correction: <0.1°/sec
+     
+[1x] Barometric Pressure Sensor
+     - BMP388 or DPS310 (high precision)
+     - Altitude hold with ±0.5m accuracy
+     - Temperature compensation
+     - Cost: $3-6
+     - Range: 0-9000m altitude
+     
+[1x] GPS Module with Compass
+     - UBLOX M8N or M10 (latest gen)
+     - 10Hz update rate
+     - Return-to-home, position hold, waypoint navigation
+     - Active antenna for better signal
+     - Cost: $15-30
+     - Accuracy: 2.5m CEP
+     
+[1x] Optical Flow Sensor
+     - PMW3901 or PAA5100JE
+     - Indoor position hold (no GPS needed)
+     - Tracks ground features at 120 fps
+     - Works up to 8m altitude
+     - Cost: $12-20
+     - Perfect for warehouse/indoor operations
+     
+[1x] Time-of-Flight Distance Sensor (downward)
+     - VL53L1X or VL53L5CX (multi-zone)
+     - Precision landing assistance
+     - Range: 0.4-4m with 1mm accuracy
+     - Cost: $5-10
+     - Auto-landing capability
+     
+[2x] Ultrasonic Rangefinders (forward/rear)
+     - HC-SR04P (waterproof) or MaxBotix
+     - Obstacle avoidance
+     - Range: 0.02-4m
+     - Cost: $3-8 each
+     - Collision prevention system
+
+CAMERA SYSTEMS & COMPUTER VISION
+--------------------------------------------------------------------------------
+[1x] FPV Camera (Pilot View)
+     - Foxeer Razer Mini or Caddx Ratel 2
+     - 1200TVL resolution, 4:3 or 16:9
+     - WDR (Wide Dynamic Range) for lighting
+     - 2.1mm wide angle lens (160° FOV)
+     - Weight: 5-8g
+     - Cost: $20-35
+     - Low latency: <10ms
+     
+[1x] FPV Video Transmitter (VTX)
+     - 5.8GHz, 25-800mW adjustable power
+     - 48 channels (RaceBand, BandE)
+     - SmartAudio or Tramp protocol
+     - Cost: $12-25
+     - Range: 500m-2km depending on power
+     
+[1x] HD Recording Camera (Optional - HD Footage)
+     - RunCam 5 Orange or DJI Action 2
+     - 4K30fps or 1080p120fps
+     - Electronic image stabilization
+     - Weight: 35-45g
+     - Cost: $80-120
+     - Alternative: GoPro Session 5 (discontinued but cheap)
+     
+[1x] AI Vision Camera (Computer Vision)
+     - OpenMV Cam H7 Plus or Pixy2
+     - Object tracking, color detection, QR code reading
+     - On-board processing (no extra computer needed)
+     - MicroPython programmable
+     - Cost: $60-80 (OpenMV), $60 (Pixy2)
+     - Features:
+       * Face/person detection
+       * AprilTag tracking
+       * Line following
+       * Gesture recognition
+       * AI model deployment (TensorFlow Lite)
+     - UART/SPI interface to FC
+     - Weight: 15-20g
+     
+[1x] Thermal Camera (Optional - Night Vision/Search)
+     - FLIR Lepton 3.5 or MLX90640
+     - 160x120 resolution (Lepton) or 32x24 (MLX90640)
+     - Temperature sensing: -40°C to 300°C
+     - Cost: $150-200 (Lepton), $45-60 (MLX90640)
+     - Use cases:
+       * Search and rescue (heat signatures)
+       * Electrical inspection
+       * Wildlife monitoring
+       * Night operations
+     - Weight: 8-12g
+
+INNOVATIVE TRACKING & AUTONOMOUS FEATURES
+--------------------------------------------------------------------------------
+[1x] AI Edge Computing Board (Optional - Advanced AI)
+     - NVIDIA Jetson Nano (2GB or 4GB)
+     - OR Raspberry Pi 4 (4GB) with Google Coral USB Accelerator
+     - Real-time AI processing:
+       * Object detection (YOLO, MobileNet)
+       * Person following
+       * Autonomous navigation
+       * Gesture control
+     - Cost: $59 (Jetson Nano 2GB), $55 (RPi4) + $60 (Coral)
+     - Weight: 80-120g (significant - need larger battery)
+     - Power: 5-10W typical, 15W peak
+     
+[1x] 4G/LTE Module (Long-Range Control)
+     - SIM7600 or SIM7600G-H
+     - LTE Cat-4, GPS integrated
+     - Remote control over internet (anywhere in world)
+     - Live video streaming to phone/cloud
+     - Cost: $25-40
+     - Requires data plan: $10-20/month
+     - Use cases:
+       * Beyond visual line of sight (BVLOS)
+       * Delivery missions
+       * Remote monitoring
+     
+[1x] LoRa Long-Range Radio (Alternative to 4G)
+     - SX1276/78 LoRa module
+     - 10-20km range in open areas
+     - No subscription fees
+     - Telemetry + low-bandwidth control
+     - Cost: $8-15
+     - Perfect for rural/remote operations
+     
+[1x] LED Ring Lights (Night Vision Aid)
+     - WS2812B or SK6812 RGB LED strip (16-24 LEDs)
+     - Programmable colors for:
+       * Status indication (armed/disarmed)
+       * Position lights (FAA compliant)
+       * Ground illumination (night landing)
+       * Under-lighting (photos/videos)
+     - Cost: $3-8
+     - Weight: 5-10g
+     - Power: 1-3W @ full brightness
+     
+[1x] Buzzer/Beeper (Lost Drone Finder)
+     - 90-110dB piezo buzzer
+     - Activated by FC or manual trigger
+     - Find crashed drone in tall grass
+     - Cost: $1-2
+     - Weight: 2g
+
+AUTONOMOUS FLIGHT CAPABILITIES (Software Features)
+--------------------------------------------------------------------------------
+With GPS + Sensors + AI Camera, enables:
+
+1. **Return to Home (RTH)**
+   - Automatic return on low battery or signal loss
+   - GPS waypoint navigation
+   
+2. **Orbit Mode**
+   - Circle around a GPS point or visual target
+   - AI camera tracks subject automatically
+   
+3. **Follow Me**
+   - GPS tracker on user (phone or dedicated)
+   - AI vision tracks user movement
+   - Maintains safe distance and altitude
+   
+4. **Waypoint Missions**
+   - Pre-programmed flight paths
+   - Survey, inspection, delivery routes
+   - INAV or ArduPilot firmware
+   
+5. **Precision Landing**
+   - Optical flow + ToF sensor
+   - AprilTag/ArUco marker recognition
+   - Lands on moving platform (car roof)
+   
+6. **Obstacle Avoidance**
+   - Ultrasonic + optical flow fusion
+   - AI vision detects obstacles
+   - Auto-braking and path re-routing
+   
+7. **Gesture Control**
+   - AI camera recognizes hand signals:
+     * Takeoff (palm up)
+     * Land (palm down)
+     * Follow (point)
+     - Selfie (peace sign)
+   
+8. **Object Tracking**
+   - AI locks onto person, car, ball, etc.
+   - Smooth gimbal follows target
+   - Auto-zoom (if using HD camera with digital zoom)
+
+BATTERIES (LiPo Pouch Cells)
+--------------------------------------------------------------------------------
+[4x] 5V LiPo Pouch Batteries ("bacon strip" style)
+     - Specification needed: Actual voltage likely 3.7V (1S) or 7.4V (2S)
+     - Capacity: 500-1000mAh per cell (estimate)
+     - Configuration options:
+       * Series: 4S (14.8V) - standard drone voltage
+       * Parallel: 1S (3.7V) 2000-4000mAh - requires boost converter
+       * 2S2P: 7.4V high capacity
+     - C-rating: 25C+ for burst current
+     - Connector: JST-PH 2.0 or XT30
+     - Weight: ~30-50g per battery (estimate)
+     
+     NOTE: Need actual battery specs - "5V batteries" unusual for LiPo.
+           Standard drone batteries: 3S (11.1V) or 4S (14.8V) LiPo
+
+FRAME & STRUCTURE (3D Printed)
+--------------------------------------------------------------------------------
+Material Requirements:
+[~150g] PLA filament - initial prototypes, non-structural
+[~200g] PETG filament - motor mounts, stress components
+[~50g]  TPU filament - vibration dampening, flexible joints
+
+Printed Parts List:
+- [1x] Gimbal ring with external gear teeth (drone_gimbal_ring.stl)
+- [1x] Main motor mount platform
+- [4x] Peripheral impeller housings (peripheral_impeller_housing.stl)
+- [4x] Servo linkage brackets for peripheral motors
+- [3x] Gimbal control servo mounts (servo_gimbal_mount.stl)
+- [3x] Servo linkage arms (25mm length)
+- [4x] Arm tube connectors
+- [4x] Battery holders/clips for pouch cells
+- [8x] Vibration dampening grommets (TPU)
+
+LASER CUT COMPONENTS (Optional - stronger alternative)
+--------------------------------------------------------------------------------
+[1x] Base frame plate - 3mm carbon fiber or fiberglass
+     - File: drone_frame_base.dxf
+     - Dimensions: 520mm x 520mm overall
+     - Alternative: 2mm aluminum for cost savings
+     
+[4x] Arm reinforcement plates - 1.5mm carbon fiber (optional)
+
+FASTENERS & HARDWARE
+--------------------------------------------------------------------------------
+[20x] M3 x 10mm screws (stainless steel or aluminum)
+[20x] M3 x 6mm screws
+[30x] M3 nuts (nylock preferred)
+[40x] M3 washers
+[16x] M2.5 x 8mm screws (servo mounting)
+[12x] M2 x 6mm screws (peripheral motor mounting)
+[8x]  608ZZ bearings (8x22x7mm) - gimbal pivot points
+[4x]  MR84ZZ bearings (4x8x3mm) - servo linkage pivots (optional)
+
+WIRING & CONNECTORS
+--------------------------------------------------------------------------------
+[5m]  22AWG silicone wire (red/black)
+[2m]  26AWG silicone wire (signal wires)
+[10x] JST connector pairs (servo/motor connections)
+[1x]  XT60 or XT30 power connector (main battery)
+[5m]  Heat shrink tubing assortment
+[1m]  Cable sleeving (optional, for wire management)
+
+MISCELLANEOUS
+--------------------------------------------------------------------------------
+[1x]  Radio Transmitter (if not already owned)
+      - 6+ channels, 2.4GHz
+      - Examples: FlySky FS-i6X, FrSky Taranis, RadioMaster TX16S
+      
+[1x]  Battery Charger
+      - LiPo balance charger, 1-4S capable
+      - Recommended: ISDT Q6 Nano or SkyRC B6AC
+      
+[1x]  USB programming cable (for flight controller)
+[1x]  Thread locker (blue Loctite 243)
+[1x]  CA glue (cyanoacrylate) for assembly
+[1x]  2-part epoxy (for structural bonding)
+
+TOOLS REQUIRED
+--------------------------------------------------------------------------------
+- 3D printer (200x200mm+ build volume)
+- Laser cutter (optional, for carbon frame)
+- Soldering iron (60W+, temperature controlled)
+- Hex driver set (1.5mm, 2mm, 2.5mm)
+- Wire strippers/cutters
+- Heat gun (for heat shrink)
+- Multimeter
+- LiPo battery voltage checker/alarm
+
+ESTIMATED COSTS (USD, approximate)
+--------------------------------------------------------------------------------
+** BASIC BUILD (Original) **
+Motors & ESCs:           $40-60
+Servos:                  $25-35 (7x servos)
+Flight Controller:       $30-50
+Radio RX:                $10-20
+Batteries:               $40-80
+3D Printing Material:    $15-25
+Hardware/Fasteners:      $10-15
+Wiring/Connectors:       $10-15
+Tools (if not owned):    $100-200
+Radio TX (if needed):    $50-150
+Battery Charger:         $30-60
+                        ---------------
+BASIC TOTAL:             $260-460 (no tools)
+
+** SENSOR UPGRADE PACKAGE **
+Advanced IMU (9-axis):   $10
+Barometer (altitude):    $5
+GPS Module:              $20
+Optical Flow:            $15
+ToF Distance Sensor:     $8
+Ultrasonic Sensors (2x): $10
+                        ---------------
+SENSORS SUBTOTAL:        $68
+
+** CAMERA PACKAGE (Basic FPV) **
+FPV Camera:              $25
+Video Transmitter:       $18
+FPV Goggles (needed):    $80-150
+                        ---------------
+FPV SUBTOTAL:            $123-193
+
+** CAMERA PACKAGE (Full AI Vision) **
+FPV Camera + VTX:        $43
+HD Recording Camera:     $100
+AI Vision Camera:        $70
+Thermal Camera:          $55 (MLX90640)
+                        ---------------
+FULL CAMERA SUBTOTAL:    $268
+
+** AUTONOMOUS PACKAGE **
+Jetson Nano 2GB:         $59
+OR RPi4 + Coral:         $115
+4G LTE Module:           $30
+LED Ring (24 LEDs):      $5
+Buzzer:                  $1
+Extra Battery (larger):  $25
+                        ---------------
+AUTONOMOUS SUBTOTAL:     $120-175
+
+** BUILD OPTIONS **
+========================================
+STANDARD BUILD:          $260-460
+  (Basic drone, no extras)
+
+SENSOR-ENHANCED:         $330-530
+  (+ GPS, barometer, rangefinders)
+
+FPV PILOT EDITION:       $450-720
+  (+ Sensors + FPV system + goggles)
+
+AI VISION PRO:           $600-800
+  (+ Sensors + Full camera suite)
+
+FULL AUTONOMOUS:         $850-1100
+  (+ Everything + AI computer + 4G)
+  REVOLUTIONARY BUILD ★★★
+
+** PERFORMANCE BUILD COSTS **
+========================================
+For BEST performance/cost ratio:
+- Standard Build: $400
+- + Sensors: $470
+- + FPV + Basic AI Camera: $590
+- + Autonomous Features: $750
+
+Recommended: $590-750 for innovation sweet spot
+
+WEIGHT ESTIMATE
+--------------------------------------------------------------------------------
+** BASIC BUILD **
+Main motor + ESC:        45g
+4x Peripheral motors:    50g
+4x Peripheral ESCs:      20g
+Servos (7x):            95g
+Flight controller:       10g
+Receiver:                2g
+Frame/structure:         100g
+Hardware:               20g
+Batteries (4x):         160g
+Wiring:                 15g
+                        ------
+BASIC WEIGHT:           517g
+
+** WITH SENSORS **
++ IMU/Barometer/GPS:     25g
++ Optical flow + ToF:    15g
++ Ultrasonic (2x):       10g
+                        ------
+SENSOR BUILD:           567g
+
+** WITH FPV + AI CAMERA **
++ FPV camera + VTX:      15g
++ AI Vision camera:      18g
++ HD camera (optional):  40g
++ Thermal cam (optional):10g
+                        ------
+FULL CAMERA BUILD:       650g (without HD)
+                        690g (with HD)
+
+** FULL AUTONOMOUS BUILD **
++ Jetson Nano/RPi4:      85g
++ 4G LTE module:         15g
++ LED ring:              8g
++ Larger battery (50%):  80g extra
+                        ------
+AUTONOMOUS BUILD:       905g
+
+** FLIGHT TIME ESTIMATES **
+========================================
+Basic (517g):           8-12 min
+Sensor (567g):          7-10 min
+Full Camera (690g):     6-9 min
+Autonomous (905g):      5-8 min
+
+** BATTERY RECOMMENDATIONS **
+========================================
+Basic: 4S 1500mAh (standard)
+Sensor: 4S 2000mAh (+33% capacity)
+Full: 4S 2500mAh (+67% capacity)
+Autonomous: 4S 3000mAh or 2x 4S 1500mAh parallel
+
+Payload capacity (remaining):
+Basic: 100-200g
+Sensor: 80-150g
+Full: 50-100g
+Autonomous: 20-50g
+
+================================================================================
+NOTES & CONSIDERATIONS
+================================================================================
+
+1. BATTERY CLARIFICATION NEEDED:
+   - "5V LiPo bacon strips" are unusual. Standard options:
+     * 1S 3.7V 500-1000mAh pouch cells (need voltage boost to 5V)
+     * 2S 7.4V 500-1000mAh (still need regulation)
+     * Use standard 4S 14.8V drone battery instead?
+
+2. GIMBAL COMPLEXITY:
+   - 3-servo gimbal control is mechanically complex
+   - Consider 2-servo system (pitch + roll only)
+   - Yaw from differential peripheral motor thrust
+
+3. FLIGHT CONTROLLER CONFIGURATION:
+   - Non-standard design requires custom mixer in Betaflight
+   - May need INAV for better support of unconventional frames
+   - Extensive tuning required
+
+4. TESTING RECOMMENDATIONS:
+   - Test main impeller thrust separately before integration
+   - Calibrate servo travel limits carefully (avoid binding)
+   - Start with conservative gimbal angles (±15°) before full ±30°
+   - Test each peripheral motor independently
+
+5. SAFETY:
+   - Always use LiPo safety bag for charging
+   - Never leave batteries unattended while charging
+   - Test in open area away from people/property
+   - Use propeller guards during initial testing
+
+6. ALTERNATIVE DESIGNS TO CONSIDER:
+   - Eliminate peripheral motor vectoring (fixed angle)
+   - Use 2-axis gimbal only (simpler)
+   - Conventional propellers instead of bladeless (more efficient)
+
+================================================================================
+ASSEMBLY NOTES REFERENCE: See assembly guide (to be created)
+CAD FILES: All .dxf, .scad, and .stl files in project directory
+================================================================================

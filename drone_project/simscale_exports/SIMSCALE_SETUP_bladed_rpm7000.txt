@@ -1,0 +1,198 @@
+
+╔══════════════════════════════════════════════════════════════════════════╗
+║                     SIMSCALE CFD SETUP GUIDE                             ║
+║                     Impeller: BLADED        RPM:  7000                      ║
+╚══════════════════════════════════════════════════════════════════════════╝
+
+📁 EXPORTED FILES:
+   ✓ impeller_bladed_rpm7000.stl  (Rotating impeller + hub)
+   ✓ motor_body.stl                         (Stationary motor - reference)
+   ✓ fluid_domain.scad                      (Optional - create in CAD)
+
+═══════════════════════════════════════════════════════════════════════════
+
+🌐 STEP 1: CREATE PROJECT IN SIMSCALE
+═══════════════════════════════════════════════════════════════════════════
+1. Go to https://www.simscale.com/
+2. Create new project: "Impeller CFD - Bladed @ 7000 RPM"
+3. Choose: "Fluid Dynamics" → "Incompressible"
+
+═══════════════════════════════════════════════════════════════════════════
+
+📤 STEP 2: UPLOAD GEOMETRY
+═══════════════════════════════════════════════════════════════════════════
+1. Upload: impeller_bladed_rpm7000.stl
+2. Optional: Upload motor_body.stl (for visualization)
+3. Set units: Millimeters (mm)
+4. Check geometry: No errors, manifold mesh
+
+═══════════════════════════════════════════════════════════════════════════
+
+⚙️  STEP 3: SIMULATION SETUP
+═══════════════════════════════════════════════════════════════════════════
+
+Analysis Type:
+   • Steady State
+   • Incompressible
+   • k-omega SST turbulence model
+
+Fluid:
+   • Material: Air
+   • Density: 1.225 kg/m³
+   • Viscosity: 1.831e-5 kg/(m·s)
+   • Temperature: 20°C
+
+═══════════════════════════════════════════════════════════════════════════
+
+🔄 STEP 4: ROTATING ZONE (CRITICAL!)
+═══════════════════════════════════════════════════════════════════════════
+
+Create Rotating Zone:
+   1. Select impeller geometry
+   2. Rotation type: MRF (Multiple Reference Frame)
+   3. Rotation axis: Z-axis (0, 0, 1)
+   4. Origin: (0, 0, 0)
+   5. Angular velocity: 733.040 rad/s  (7000 RPM)
+   6. Zone radius: 50.0 mm
+   7. Zone height: 55.0 mm
+
+═══════════════════════════════════════════════════════════════════════════
+
+🌊 STEP 5: BOUNDARY CONDITIONS
+═══════════════════════════════════════════════════════════════════════════
+
+Inlet (Bottom):
+   • Type: Velocity Inlet
+   • Direction: Z-axis (upward)
+   • Velocity: 0 m/s (static test) or 5-10 m/s (forward flight)
+   • Turbulence: 5% intensity
+
+Outlet (Top):
+   • Type: Pressure Outlet
+   • Pressure: 0 Pa (atmospheric)
+   • Backflow turbulence: 5%
+
+Impeller Surface:
+   • Type: Wall
+   • Roughness: Smooth
+   • Wall treatment: Wall Function
+
+Motor Surface (if included):
+   • Type: Wall - No Slip
+   • Stationary
+
+═══════════════════════════════════════════════════════════════════════════
+
+🕸️  STEP 6: MESHING
+═══════════════════════════════════════════════════════════════════════════
+
+Mesh Settings:
+   • Type: Hex-dominant
+   • Base element size: 2 mm
+   • Refinement levels: 3
+   • Target cell count: 3-5 million cells
+
+Refinement Zones:
+   1. Impeller surface: 3 levels (0.5 mm)
+   2. Rotating zone: 2 levels (1 mm)
+   3. Wake region: 1 level (1.5 mm)
+
+Boundary Layers:
+   • Number of layers: 5
+   • Growth rate: 1.3
+   • First layer thickness: 0.1 mm
+   • Target y+: 30-300
+
+═══════════════════════════════════════════════════════════════════════════
+
+📊 STEP 7: RESULT PROBES
+═══════════════════════════════════════════════════════════════════════════
+
+Create Force Probes:
+   1. Thrust force (Z-direction on impeller)
+   2. Torque (rotation axis)
+   3. Power = Torque × Angular velocity
+
+Create Field Probes:
+   1. Velocity slice (XY plane at impeller height)
+   2. Pressure distribution on blades
+   3. Vorticity (check flow separation)
+
+═══════════════════════════════════════════════════════════════════════════
+
+▶️  STEP 8: RUN SIMULATION
+═══════════════════════════════════════════════════════════════════════════
+
+Solver Settings:
+   • Maximum iterations: 500
+   • Convergence criteria: 1e-4
+   • Relaxation factors: Default (0.3 for pressure, 0.7 for velocity)
+
+Estimated Time:
+   • With 3M cells: ~30-60 minutes
+   • With 5M cells: ~60-120 minutes
+
+═══════════════════════════════════════════════════════════════════════════
+
+📈 STEP 9: POST-PROCESSING
+═══════════════════════════════════════════════════════════════════════════
+
+Extract Results:
+   ✓ Thrust (N) → Convert to grams: Thrust_N × 101.97
+   ✓ Torque (N·m)
+   ✓ Power (W) = Torque × (2π × RPM / 60)
+   ✓ Efficiency = Thrust / Power (g/W)
+
+Visualizations:
+   • Velocity streamlines
+   • Pressure contours on blades
+   • Vorticity iso-surfaces
+   • Blade loading distribution
+
+═══════════════════════════════════════════════════════════════════════════
+
+📋 STEP 10: RECORD RESULTS
+═══════════════════════════════════════════════════════════════════════════
+
+Save to: optimization_results.json
+
+Format:
+{
+  "variant_id": "bladed_7000",
+  "type": "bladed",
+  "rpm": 7000,
+  "thrust": <value_in_grams>,
+  "torque": <value_in_Nm>,
+  "power": <value_in_watts>,
+  "efficiency": <thrust/power>
+}
+
+Then run:
+    python ai_impeller_optimizer.py --mode analyze
+
+═══════════════════════════════════════════════════════════════════════════
+
+🔧 TROUBLESHOOTING
+═══════════════════════════════════════════════════════════════════════════
+
+Problem: Mesh fails
+Solution: Reduce refinement levels or increase base size
+
+Problem: Simulation diverges
+Solution: Reduce relaxation factors (0.2/0.5) or lower RPM
+
+Problem: No thrust
+Solution: Check rotating zone setup, verify axis direction
+
+Problem: Unrealistic results
+Solution: Check units (mm vs m), verify boundary conditions
+
+═══════════════════════════════════════════════════════════════════════════
+
+📚 REFERENCES
+═══════════════════════════════════════════════════════════════════════════
+• SimScale Docs: https://www.simscale.com/docs/
+• Tutorial: Rotating Machinery (Propeller)
+• Best Practices: k-omega SST Turbulence Model
+
+═══════════════════════════════════════════════════════════════════════════
